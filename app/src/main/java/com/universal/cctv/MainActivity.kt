@@ -28,14 +28,16 @@ class MainActivity : Activity() {
 
         urlInput = EditText(this).apply {
             hint = "Enter RTSP Camera URL"
-            singleLine = true
+            setSingleLine(true)
             textSize = 16f
         }
 
         val playButton = Button(this).apply {
             text = "CONNECT CAMERA"
+
             setOnClickListener {
                 val url = urlInput.text.toString().trim()
+
                 if (url.startsWith("rtsp://")) {
                     playCamera(url)
                 } else {
@@ -54,6 +56,7 @@ class MainActivity : Activity() {
 
         layout.addView(urlInput)
         layout.addView(playButton)
+
         layout.addView(
             playerView,
             LinearLayout.LayoutParams(
@@ -73,6 +76,7 @@ class MainActivity : Activity() {
         playerView.player = player
 
         val mediaItem = MediaItem.fromUri(url)
+
         player?.setMediaItem(mediaItem)
         player?.prepare()
         player?.play()
