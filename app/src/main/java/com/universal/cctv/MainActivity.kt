@@ -3,13 +3,13 @@ package com.universal.cctv
 
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.net.wifi.WifiManager
 import android.os.Bundle
 import android.view.Gravity
-import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.media3.common.MediaItem
@@ -53,6 +53,7 @@ class MainActivity : Activity() {
         }
 
         // HEADER
+
         val header = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER_VERTICAL
@@ -79,10 +80,10 @@ class MainActivity : Activity() {
 
         root.addView(header, matchWrap())
 
-        // SECTION TITLE
+        // CAMERA CONNECTION
+
         root.addView(sectionTitle("CAMERA CONNECTION"))
 
-        // OPTION CARDS
         val options = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER
@@ -120,7 +121,38 @@ class MainActivity : Activity() {
 
         root.addView(options)
 
-        // DEVICE STATUS CARD
+        // LIVE MONITOR BUTTON
+
+        val monitorButton = Button(this).apply {
+            text = "OPEN LIVE MONITOR"
+            textSize = 16f
+            isAllCaps = false
+            setTextColor(Color.WHITE)
+            typeface = Typeface.DEFAULT_BOLD
+            background = rounded(orange, 12)
+
+            setOnClickListener {
+                startActivity(
+                    Intent(
+                        this@MainActivity,
+                        MonitorActivity::class.java
+                    )
+                )
+            }
+        }
+
+        root.addView(
+            monitorButton,
+            LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                dp(55)
+            ).apply {
+                topMargin = dp(12)
+            }
+        )
+
+        // DEVICE STATUS
+
         root.addView(sectionTitle("DEVICE STATUS"))
 
         val statusCard = LinearLayout(this).apply {
@@ -130,7 +162,7 @@ class MainActivity : Activity() {
         }
 
         status = TextView(this).apply {
-            text = "●  READY TO CONNECT"
+            text = "● READY TO CONNECT"
             textSize = 15f
             setTextColor(darkOrange)
             typeface = Typeface.DEFAULT_BOLD
@@ -153,7 +185,8 @@ class MainActivity : Activity() {
 
         root.addView(statusCard, matchWrap())
 
-        // MANUAL RTSP CARD
+        // MANUAL RTSP
+
         root.addView(sectionTitle("MANUAL RTSP CONNECTION"))
 
         val rtspCardBox = LinearLayout(this).apply {
@@ -178,7 +211,9 @@ class MainActivity : Activity() {
             isAllCaps = false
             typeface = Typeface.DEFAULT_BOLD
             background = rounded(orange, 12)
+
             setOnClickListener {
+
                 val url = rtspInput.text.toString().trim()
 
                 if (url.startsWith("rtsp://", true)) {
@@ -194,6 +229,7 @@ class MainActivity : Activity() {
         }
 
         rtspCardBox.addView(rtspInput, matchWrap())
+
         rtspCardBox.addView(
             connectButton,
             LinearLayout.LayoutParams(
@@ -206,7 +242,8 @@ class MainActivity : Activity() {
 
         root.addView(rtspCardBox, matchWrap())
 
-        // LIVE VIEW
+        // LIVE CAMERA VIEW
+
         root.addView(sectionTitle("LIVE CAMERA VIEW"))
 
         val videoCard = LinearLayout(this).apply {
@@ -229,7 +266,7 @@ class MainActivity : Activity() {
         )
 
         val videoInfo = TextView(this).apply {
-            text = "CAMERA PREVIEW  •  WAITING FOR CONNECTION"
+            text = "CAMERA PREVIEW • WAITING FOR CONNECTION"
             textSize = 11f
             setTextColor(darkOrange)
             gravity = Gravity.CENTER
@@ -241,6 +278,7 @@ class MainActivity : Activity() {
         root.addView(videoCard, matchWrap())
 
         // FOOTER
+
         val footer = TextView(this).apply {
             text = "UNIVERSAL CCTV VIEWER"
             textSize = 12f
@@ -257,6 +295,7 @@ class MainActivity : Activity() {
     }
 
     // SECTION TITLE
+
     private fun sectionTitle(value: String): TextView {
         return TextView(this).apply {
             text = value
@@ -267,7 +306,8 @@ class MainActivity : Activity() {
         }
     }
 
-    // SQUARE OPTION CARD
+    // OPTION CARD
+
     private fun createCard(
         symbol: String,
         heading: String,
@@ -282,7 +322,6 @@ class MainActivity : Activity() {
             isClickable = true
             background = rounded(Color.WHITE, 14, orange)
             setPadding(dp(5), dp(8), dp(5), dp(8))
-            contentDescription = "$heading. $description"
         }
 
         val icon = TextView(this).apply {
@@ -312,6 +351,7 @@ class MainActivity : Activity() {
         card.addView(desc)
 
         card.setOnFocusChangeListener { view, focused ->
+
             view.background = rounded(
                 if (focused) orange else Color.WHITE,
                 14,
@@ -336,10 +376,11 @@ class MainActivity : Activity() {
         return card
     }
 
-    // SEARCH ONVIF
+    // ONVIF SEARCH
+
     private fun searchDevices() {
 
-        status.text = "●  SEARCHING ONVIF DEVICES..."
+        status.text = "● SEARCHING ONVIF DEVICES..."
         deviceList.removeAllViews()
 
         executor.execute {
@@ -352,11 +393,11 @@ class MainActivity : Activity() {
 
                 if (devices.isEmpty()) {
 
-                    status.text = "●  NO DEVICE FOUND"
+                    status.text = "● NO DEVICE FOUND"
 
                 } else {
 
-                    status.text = "●  FOUND ${devices.size} DEVICE(S)"
+                    status.text = "● FOUND ${devices.size} DEVICE(S)"
 
                     devices.forEachIndexed { index, device ->
 
@@ -366,7 +407,6 @@ class MainActivity : Activity() {
                             setTextColor(dark)
                             setPadding(dp(8), dp(10), dp(8), dp(10))
                             background = rounded(cream, 8, orange)
-                            isFocusable = true
                         }
 
                         deviceList.addView(
@@ -382,6 +422,7 @@ class MainActivity : Activity() {
     }
 
     // ONVIF DISCOVERY
+
     private fun discoverOnvif(): List<Pair<String, String>> {
 
         val results = linkedMapOf<String, String>()
@@ -490,6 +531,7 @@ class MainActivity : Activity() {
     }
 
     // RTSP PLAYER
+
     private fun playCamera(url: String) {
 
         try {
@@ -504,7 +546,7 @@ class MainActivity : Activity() {
             player?.prepare()
             player?.play()
 
-            status.text = "●  CONNECTING TO CAMERA"
+            status.text = "● CONNECTING TO CAMERA"
 
         } catch (e: Exception) {
 
@@ -515,6 +557,8 @@ class MainActivity : Activity() {
             ).show()
         }
     }
+
+    // DESIGN
 
     private fun rounded(
         color: Int,
