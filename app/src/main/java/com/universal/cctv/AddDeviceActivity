@@ -1,0 +1,264 @@
+
+package com.universal.cctv
+
+import android.app.Activity
+import android.os.Bundle
+import android.graphics.Color
+import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
+import android.view.Gravity
+import android.view.ViewGroup
+import android.widget.*
+
+class AddDeviceActivity : Activity() {
+
+    private val orange = Color.rgb(224, 105, 20)
+    private val cream = Color.rgb(255, 248, 240)
+    private val dark = Color.rgb(42, 39, 36)
+
+    private lateinit var company: Spinner
+    private lateinit var serial: EditText
+    private lateinit var username: EditText
+    private lateinit var password: EditText
+    private lateinit var method: Spinner
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        window.statusBarColor = orange
+        window.navigationBarColor = orange
+
+        val scroll = ScrollView(this)
+
+        val root = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(18), dp(15), dp(18), dp(20))
+            setBackgroundColor(cream)
+        }
+
+        val header = TextView(this).apply {
+            text = "ADD DVR / NVR"
+            textSize = 25f
+            typeface = Typeface.DEFAULT_BOLD
+            setTextColor(Color.WHITE)
+            gravity = Gravity.CENTER
+            setPadding(10, dp(20), 10, dp(20))
+            background = rounded(orange, 14)
+        }
+
+        root.addView(header, matchWrap())
+
+        addLabel(root, "SELECT COMPANY")
+
+        val companies = listOf(
+            "Select Company",
+            "Hikvision",
+            "CP Plus",
+            "Dahua",
+            "H.264 / XM / XMEye",
+            "TVT",
+            "Uniview",
+            "HiLook",
+            "Prama",
+            "Other / Unknown Brand"
+        )
+
+        company = Spinner(this)
+
+        company.adapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_dropdown_item,
+            companies
+        )
+
+        root.addView(company, matchWrap())
+
+        addLabel(root, "DEVICE SERIAL NUMBER")
+
+        serial = createInput("Enter DVR/NVR Serial Number")
+        root.addView(serial, matchWrap())
+
+        addLabel(root, "USERNAME")
+
+        username = createInput("Enter Username")
+        username.setText("admin")
+        root.addView(username, matchWrap())
+
+        addLabel(root, "PASSWORD")
+
+        password = createInput("Enter Device Password")
+        password.inputType = 129
+        root.addView(password, matchWrap())
+
+        addLabel(root, "CONNECTION METHOD")
+
+        val methods = listOf(
+            "Select Connection Method",
+            "Internet P2P / Cloud",
+            "Local ONVIF",
+            "Manual RTSP"
+        )
+
+        method = Spinner(this)
+
+        method.adapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_dropdown_item,
+            methods
+        )
+
+        root.addView(method, matchWrap())
+
+        val note = TextView(this).apply {
+            text = "Note: Internet P2P requires compatible manufacturer service or SDK. ONVIF and RTSP require their respective device/network settings."
+            textSize = 12f
+            setTextColor(dark)
+            setPadding(5, dp(12), 5, dp(12))
+        }
+
+        root.addView(note)
+
+        val connect = Button(this).apply {
+            text = "CONNECT DVR / NVR"
+            textSize = 16f
+            isAllCaps = false
+            typeface = Typeface.DEFAULT_BOLD
+            setTextColor(Color.WHITE)
+            background = rounded(orange, 12)
+
+            setOnClickListener {
+                validateDevice()
+            }
+        }
+
+        root.addView(
+            connect,
+            LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                dp(55)
+            ).apply {
+                topMargin = dp(15)
+            }
+        )
+
+        val back = Button(this).apply {
+            text = "BACK"
+            isAllCaps = false
+            setOnClickListener { finish() }
+        }
+
+        root.addView(back, matchWrap())
+
+        scroll.addView(root)
+        setContentView(scroll)
+    }
+
+    private fun validateDevice() {
+
+        val selectedCompany =
+            company.selectedItem.toString()
+
+        val selectedMethod =
+            method.selectedItem.toString()
+
+        if (company.selectedItemPosition == 0) {
+            showMessage("Please select DVR/NVR company")
+            return
+        }
+
+        if (serial.text.toString().trim().isEmpty()) {
+            showMessage("Enter device serial number")
+            return
+        }
+
+        if (username.text.toString().trim().isEmpty()) {
+            showMessage("Enter username")
+            return
+        }
+
+        if (password.text.toString().isEmpty()) {
+            showMessage("Enter password")
+            return
+        }
+
+        if (method.selectedItemPosition == 0) {
+            showMessage("Select connection method")
+            return
+        }
+
+        val message = """
+            Device Information Accepted
+
+            Company: $selectedCompany
+            Serial: ${serial.text.toString().trim()}
+            Method: $selectedMethod
+
+            Protocol connection is the next step.
+        """.trimIndent()
+
+        android.app.AlertDialog.Builder(this)
+            .setTitle("DEVICE DETAILS")
+            .setMessage(message)
+            .setPositiveButton("OK", null)
+            .show()
+    }
+
+    private fun addLabel(
+        root: LinearLayout,
+        text: String
+    ) {
+        val label = TextView(this).apply {
+            this.text = text
+            textSize = 14f
+            typeface = Typeface.DEFAULT_BOLD
+            setTextColor(Color.rgb(183, 77, 8))
+            setPadding(3, dp(15), 3, dp(6))
+        }
+
+        root.addView(label)
+    }
+
+    private fun createInput(hintText: String): EditText {
+
+        return EditText(this).apply {
+            hint = hintText
+            textSize = 14f
+            setTextColor(dark)
+            setHintTextColor(Color.GRAY)
+            setSingleLine(true)
+            background = rounded(Color.WHITE, 9)
+            setPadding(dp(12), dp(8), dp(12), dp(8))
+        }
+    }
+
+    private fun rounded(
+        color: Int,
+        radius: Int
+    ): GradientDrawable {
+
+        return GradientDrawable().apply {
+            setColor(color)
+            cornerRadius = dp(radius).toFloat()
+            setStroke(dp(1), orange)
+        }
+    }
+
+    private fun matchWrap(): LinearLayout.LayoutParams {
+        return LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+    }
+
+    private fun dp(value: Int): Int {
+        return (value * resources.displayMetrics.density).toInt()
+    }
+
+    private fun showMessage(message: String) {
+        Toast.makeText(
+            this,
+            message,
+            Toast.LENGTH_LONG
+        ).show()
+    }
+}
