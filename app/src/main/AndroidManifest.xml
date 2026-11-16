@@ -1,35 +1,15 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- INTERNET -->
-    <uses-permission android:name="android.permission.INTERNET" />
-
-    <!-- NETWORK -->
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
-    <!-- ONVIF DISCOVERY -->
-    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
-
-    <!-- ANDROID TV SUPPORT -->
-    <uses-feature
-        android:name="android.software.leanback"
-        android:required="false" />
-
-    <uses-feature
-        android:name="android.hardware.touchscreen"
-        android:required="false" />
-
     <application
-        android:allowBackup="false"
-        android:label="Universal CCTV Viewer"
-        android:usesCleartextTraffic="true"
-        android:theme="@android:style/Theme.Material.NoActionBar">
+        android:allowBackup="true"
+        android:label="MIKRO LOAN COMPANY"
+        android:supportsRtl="true"
+        android:theme="@android:style/Theme.Material.Light.NoActionBar">
 
-        <!-- MAIN SCREEN -->
         <activity
-            android:name=".MainActivity"
-            android:exported="true"
-            android:screenOrientation="landscape">
+            android:name="com.mikroloan.company.MainActivity"
+            android:exported="true">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -37,12 +17,6 @@
             </intent-filter>
 
         </activity>
-
-        <!-- LIVE CAMERA MONITOR -->
-        <activity
-            android:name=".MonitorActivity"
-            android:exported="false"
-            android:screenOrientation="landscape" />
 
     </application>
 
