@@ -1,8 +1,25 @@
 
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Internet Permission -->
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Network Permission -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- ONVIF Multicast Discovery -->
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+
+    <!-- Android TV Support -->
+    <uses-feature
+        android:name="android.software.leanback"
+        android:required="false" />
+
+    <!-- Mobile and TV Support -->
+    <uses-feature
+        android:name="android.hardware.touchscreen"
+        android:required="false" />
 
     <application
         android:allowBackup="false"
@@ -17,6 +34,7 @@
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
