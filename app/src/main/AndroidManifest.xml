@@ -1,15 +1,23 @@
 
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
 
     <application
         android:allowBackup="true"
-        android:label="MIKRO LOAN COMPANY"
+        android:label="UNIVERSAL CCTV VIEWER"
         android:supportsRtl="true"
+        android:usesCleartextTraffic="true"
         android:theme="@android:style/Theme.Material.Light.NoActionBar">
 
         <activity
-            android:name="com.mikroloan.company.MainActivity"
-            android:exported="true">
+            android:name="com.universal.cctv.MainActivity"
+            android:exported="true"
+            android:screenOrientation="landscape">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -17,6 +25,11 @@
             </intent-filter>
 
         </activity>
+
+        <activity
+            android:name="com.universal.cctv.MonitorActivity"
+            android:exported="false"
+            android:screenOrientation="landscape" />
 
     </application>
 
