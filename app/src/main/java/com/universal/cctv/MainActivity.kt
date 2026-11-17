@@ -9,10 +9,12 @@ import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.net.wifi.WifiManager
 import android.os.Bundle
+import android.text.InputType
 import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.*
 import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import java.net.DatagramPacket
@@ -77,7 +79,6 @@ class MainActivity : Activity() {
 
         header.addView(title)
         header.addView(subtitle)
-
         root.addView(header, matchWrap())
 
         // CAMERA CONNECTION
@@ -202,6 +203,8 @@ class MainActivity : Activity() {
             setHintTextColor(Color.GRAY)
             setSingleLine(true)
             isFocusable = true
+            inputType = InputType.TYPE_CLASS_TEXT or
+                InputType.TYPE_TEXT_VARIATION_URI
         }
 
         val connectButton = Button(this).apply {
@@ -213,7 +216,6 @@ class MainActivity : Activity() {
             background = rounded(orange, 12)
 
             setOnClickListener {
-
                 val url = rtspInput.text.toString().trim()
 
                 if (url.startsWith("rtsp://", true)) {
@@ -274,7 +276,6 @@ class MainActivity : Activity() {
         }
 
         videoCard.addView(videoInfo)
-
         root.addView(videoCard, matchWrap())
 
         // FOOTER
@@ -405,8 +406,15 @@ class MainActivity : Activity() {
                             text = "DEVICE ${index + 1}\n${device.first}\n${device.second}"
                             textSize = 12f
                             setTextColor(dark)
-                            setPadding(dp(8), dp(10), dp(8), dp(10))
+                            setPadding(dp(10), dp(12), dp(10), dp(12))
                             background = rounded(cream, 8, orange)
+
+                            isClickable = true
+                            isFocusable = true
+
+                            setOnClickListener {
+                                showDeviceLogin(device.first)
+                            }
                         }
 
                         deviceList.addView(
@@ -419,6 +427,81 @@ class MainActivity : Activity() {
                 }
             }
         }
+    }
+
+    // DEVICE LOGIN WINDOW
+
+    private fun showDeviceLogin(deviceUrl: String) {
+
+        val layout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(20), dp(10), dp(20), dp(5))
+        }
+
+        val address = TextView(this).apply {
+            text = "DVR/NVR Address:\n$deviceUrl"
+            textSize = 13f
+            setTextColor(dark)
+        }
+
+        val username = EditText(this).apply {
+            hint = "DVR Username"
+            setSingleLine(true)
+            setText("admin")
+            inputType = InputType.TYPE_CLASS_TEXT
+        }
+
+        val password = EditText(this).apply {
+            hint = "DVR Password"
+            setSingleLine(true)
+            inputType = InputType.TYPE_CLASS_TEXT or
+                InputType.TYPE_TEXT_VARIATION_PASSWORD
+        }
+
+        layout.addView(address)
+        layout.addView(username)
+        layout.addView(password)
+
+        val dialog = android.app.AlertDialog.Builder(this)
+            .setTitle("CONNECT DVR / NVR")
+            .setView(layout)
+            .setPositiveButton("CONNECT", null)
+            .setNegativeButton("CANCEL", null)
+            .create()
+
+        dialog.setOnShowListener {
+
+            dialog.getButton(
+                android.app.AlertDialog.BUTTON_POSITIVE
+            ).setOnClickListener {
+
+                val user = username.text.toString().trim()
+                val pass = password.text.toString()
+
+                if (user.isEmpty() || pass.isEmpty()) {
+
+                    Toast.makeText(
+                        this,
+                        "Enter Username and Password",
+                        Toast.LENGTH_LONG
+                    ).show()
+
+                } else {
+
+                    status.text = "● DEVICE SELECTED"
+
+                    Toast.makeText(
+                        this,
+                        "Login details entered. ONVIF login is not implemented yet.",
+                        Toast.LENGTH_LONG
+                    ).show()
+
+                    dialog.dismiss()
+                }
+            }
+        }
+
+        dialog.show()
     }
 
     // ONVIF DISCOVERY
@@ -543,6 +626,40 @@ class MainActivity : Activity() {
             playerView.player = player
 
             player?.setMediaItem(MediaItem.fromUri(url))
+
+            player?.addListener(object : Player.Listener {
+
+                override fun onPlaybackStateChanged(playbackState: Int) {
+
+                    when (playbackState) {
+
+                        Player.STATE_BUFFERING -> {
+                            status.text = "● CONNECTING TO CAMERA..."
+                        }
+
+                        Player.STATE_READY -> {
+                            status.text = "● CAMERA CONNECTED"
+                        }
+
+                        Player.STATE_ENDED -> {
+                            status.text = "● STREAM ENDED"
+                        }
+
+                        else -> {}
+                    }
+                }
+
+                override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
+                    status.text = "● CAMERA CONNECTION FAILED"
+
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Stream Error: ${error.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            })
+
             player?.prepare()
             player?.play()
 
